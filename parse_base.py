@@ -1,5 +1,4 @@
 from openpyxl import load_workbook
-from pprint import pprint
 
 
 def parsing_base():
@@ -10,9 +9,6 @@ def parsing_base():
         str_from_table = []
         for cell in cellObj:
             str_from_table.append(cell.value)
-            # print(cell.coordinate, cell.value)
-        # cv_list.append(tmp)
-        # print('--- END ---')
         cv_dct = {}
         cv_dct['position'] = str_from_table[0]
         split_list = str_from_table[1].strip().split()
@@ -35,5 +31,3 @@ def parsing_base():
         cv_dct['status'] = str_from_table[4]
         cv_list.append(cv_dct)
     return cv_list
-
-pprint(parsing_base())

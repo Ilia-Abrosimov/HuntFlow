@@ -1,6 +1,6 @@
 import os
 from typing import Dict, Any
-
+from parse_base import parsing_base
 import requests
 from pprint import pprint
 from dotenv import load_dotenv
@@ -10,14 +10,6 @@ load_dotenv()
 
 AUTH_TOKEN = os.getenv("AUTH_TOKEN")
 
-# def get_me():
-#     url = "https://dev-100-api.huntflow.dev/me"
-#     headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
-#     response = requests.get(url, headers=headers)
-#     return response.json()
-#
-#
-# pprint(get_me())
 
 mydict = {'comments': 'Очень дорогой',
           'first_name': 'Александр',
@@ -27,7 +19,7 @@ mydict = {'comments': 'Очень дорогой',
           'status': 'Отказ'}
 
 
-def add_candidate(cv: Dict[str, Any]):
+def add_candidate(cv: Dict[str, Any], file_id: int):
     url = "https://dev-100-api.huntflow.dev/account/2/applicants"
     headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
     data = {}
@@ -42,16 +34,15 @@ def add_candidate(cv: Dict[str, Any]):
             "auth_type": "NATIVE",
             "files": [
                 {
-                    "id": 4
+                    "id": file_id
                 }
             ],
         }
     ]
 
     response = requests.post(url, headers=headers, json=data)
-    return response.json()
-
-# print(add_candidate(mydict))
+    candidate_id = response.json()["id"]
+    return candidate_id
 
 
 def get_vacancies_ids(cv: Dict[str, Any]):
@@ -80,23 +71,32 @@ def upload_file():
     headers = {'Authorization': f'Bearer {AUTH_TOKEN}',
                'X-File-Parse': 'True'}
     response = requests.post(url, headers=headers, files=files)
-    return response.json()
+    file_id = response.json()["id"]
+    return file_id
 
 
-def add_candidate_at_vacancy():
-    url = "https://dev-100-api.huntflow.dev/account/2/applicants/1170/vacancy"
+def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int, file_id: int):
+    url = f"https://dev-100-api.huntflow.dev/account/2/applicants/{candidate_id}/vacancy"
     headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
     data = {
-        "vacancy": get_vacancies_ids(mydict),
-        "status": get_statuses_ids(mydict),
+        "vacancy": vacancy_id,
+        "status": status_id,
         "files": {
-            "id": 4
+            "id": file_id
         }
     }
     response = requests.post(url, headers=headers, json=data)
     return response.json()
 
-print(add_candidate_at_vacancy())
+
+data = parsing_base()
+
+for candidate in data:
+    file_id = upload_file()
+    candidate_id = add_candidate(candidate, file_id)
+    vacancy_id = get_vacancies_ids(candidate)
+    status_id = get_statuses_ids(candidate)
+    add_candidate_at_vacancy(candidate_id, vacancy_id, status_id, file_id)
 
 
 
