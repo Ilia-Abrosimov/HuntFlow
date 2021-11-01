@@ -42,7 +42,7 @@ def parsing_base():
         for i in tmp:
             if i.isdigit():
                 cv_dct['money'] += i
-        cv_dct['comments'] = str_from_table[3]
+        cv_dct['comment'] = str_from_table[3]
         cv_dct['status'] = str_from_table[4]
         cv_list.append(cv_dct)
     return cv_list

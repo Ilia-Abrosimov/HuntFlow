@@ -90,16 +90,19 @@ def upload_file(cv: Dict[str, Any]):
     return response
 
 
-def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int, file_id: int):
+def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int, file_id: int, cv: Dict[str, Any]):
     url = f"https://dev-100-api.huntflow.dev/account/2/applicants/{candidate_id}/vacancy"
     headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
     data = {
         "vacancy": vacancy_id,
         "status": status_id,
+        "comment": cv.get("comment"),
         "files": {
             "id": file_id["id"]
         }
     }
+    if status_id == 10:
+        data["rejection_reason"] = 1
     response = requests.post(url, headers=headers, json=data)
     return response.json()
 
@@ -111,7 +114,7 @@ for candidate in data:
     candidate_id = add_candidate(candidate, file_info)
     vacancy_id = get_vacancies_ids(candidate)
     status_id = get_statuses_ids(candidate)
-    add_candidate_at_vacancy(candidate_id, vacancy_id, status_id, file_info)
+    add_candidate_at_vacancy(candidate_id, vacancy_id, status_id, file_info, candidate)
 
 
 
