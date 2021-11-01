@@ -19,7 +19,7 @@ mydict = {'comments': 'Очень дорогой',
           'status': 'Отказ'}
 
 
-def add_candidate(cv: Dict[str, Any], file_id: int):
+def add_candidate(cv: Dict[str, Any], info_from_file: Dict[str, Any]):
     url = "https://dev-100-api.huntflow.dev/account/2/applicants"
     headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
     data = {}
@@ -29,12 +29,26 @@ def add_candidate(cv: Dict[str, Any], file_id: int):
         data["middle_name"] = cv.get("middle_name")
     data["position"] = cv.get("position")
     data["money"] = cv.get("money")
+    if info_from_file.get("fields")["phones"] is not None:
+        data["phone"] = info_from_file.get("fields")["phones"][0]
+    if info_from_file.get("fields")["email"] is not None:
+        data["email"] = info_from_file.get("fields")["email"]
+    if info_from_file.get("fields")["experience"][0]["company"] is not None:
+        data["company"] = info_from_file.get("fields")["experience"][0]["company"]
+    if info_from_file.get("fields")["birthdate"] is not None:
+        data["birthday_day"] = info_from_file.get("fields")["birthdate"]["day"]
+        data["birthday_month"] = info_from_file.get("fields")["birthdate"]["month"]
+        data["birthday_year"] = info_from_file.get("fields")["birthdate"]["year"]
+    if info_from_file.get("photo")["id"] is not None:
+        data["photo"] = info_from_file.get("photo")["id"]
     data["externals"] = [
         {
+            "data": {
+                "body": info_from_file.get("text")},
             "auth_type": "NATIVE",
             "files": [
                 {
-                    "id": file_id
+                    "id": info_from_file["id"]
                 }
             ],
         }
@@ -65,14 +79,15 @@ def get_statuses_ids(cv: Dict[str, Any]):
             return status.get("id")
 
 
-def upload_file():
+def upload_file(cv: Dict[str, Any]):
     url = "https://dev-100-api.huntflow.dev/account/2/upload"
-    files = {'file': ('Пушкин Александр', open('Frontend-разработчик/Танский Михаил.pdf', 'rb'), 'application/pdf')}
+    path = cv.get("file_path")
+    full_name = cv.get("full_name")
+    files = {'file': (full_name, open(path, 'rb'), 'application/pdf')}
     headers = {'Authorization': f'Bearer {AUTH_TOKEN}',
                'X-File-Parse': 'True'}
-    response = requests.post(url, headers=headers, files=files)
-    file_id = response.json()["id"]
-    return file_id
+    response = requests.post(url, headers=headers, files=files).json()
+    return response
 
 
 def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int, file_id: int):
@@ -82,7 +97,7 @@ def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int,
         "vacancy": vacancy_id,
         "status": status_id,
         "files": {
-            "id": file_id
+            "id": file_id["id"]
         }
     }
     response = requests.post(url, headers=headers, json=data)
@@ -92,11 +107,11 @@ def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int,
 data = parsing_base()
 
 for candidate in data:
-    file_id = upload_file()
-    candidate_id = add_candidate(candidate, file_id)
+    file_info = upload_file(candidate)
+    candidate_id = add_candidate(candidate, file_info)
     vacancy_id = get_vacancies_ids(candidate)
     status_id = get_statuses_ids(candidate)
-    add_candidate_at_vacancy(candidate_id, vacancy_id, status_id, file_id)
+    add_candidate_at_vacancy(candidate_id, vacancy_id, status_id, file_info)
 
 
 
