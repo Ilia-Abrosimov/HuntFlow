@@ -1,10 +1,7 @@
-import os
 from typing import Any, Dict
 
 import requests
 from dotenv import load_dotenv
-
-from parse_base import parsing_base
 
 load_dotenv()
 
@@ -96,13 +93,3 @@ def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int,
         data["rejection_reason"] = 1
     response = requests.post(url, headers=headers, json=data)
     return response.json()
-
-
-# data = parsing_base()
-#
-# for candidate in data:
-#     file_info = upload_file(candidate)
-#     candidate_id = add_candidate(candidate, file_info)
-#     vacancy_id = get_vacancies_ids(candidate)
-#     status_id = get_statuses_ids(candidate)
-#     add_candidate_at_vacancy(candidate_id, vacancy_id, status_id, file_info, candidate)
