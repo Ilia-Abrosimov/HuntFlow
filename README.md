@@ -41,3 +41,4 @@ ___
 
 Запустить файл main.py
 
+    $ python main.py
