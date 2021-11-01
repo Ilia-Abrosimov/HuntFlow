@@ -1,25 +1,17 @@
 import os
-from typing import Dict, Any
-from parse_base import parsing_base
+from typing import Any, Dict
+
 import requests
-from pprint import pprint
 from dotenv import load_dotenv
 
+from parse_base import parsing_base
 
 load_dotenv()
 
-AUTH_TOKEN = os.getenv("AUTH_TOKEN")
+# AUTH_TOKEN = os.getenv("AUTH_TOKEN")
 
 
-mydict = {'comments': 'Очень дорогой',
-          'first_name': 'Александр',
-          'last_name': 'Пушкин',
-          'money': '100500',
-          'position': 'Frontend-разработчик',
-          'status': 'Отказ'}
-
-
-def add_candidate(cv: Dict[str, Any], info_from_file: Dict[str, Any]):
+def add_candidate(cv: Dict[str, Any], info_from_file: Dict[str, Any], AUTH_TOKEN):
     url = "https://dev-100-api.huntflow.dev/account/2/applicants"
     headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
     data = {}
@@ -53,13 +45,12 @@ def add_candidate(cv: Dict[str, Any], info_from_file: Dict[str, Any]):
             ],
         }
     ]
-
     response = requests.post(url, headers=headers, json=data)
     candidate_id = response.json()["id"]
     return candidate_id
 
 
-def get_vacancies_ids(cv: Dict[str, Any]):
+def get_vacancies_ids(cv: Dict[str, Any], AUTH_TOKEN):
     url = "https://dev-100-api.huntflow.dev/account/2/vacancies"
     headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
     response = requests.get(url, headers=headers)
@@ -69,7 +60,7 @@ def get_vacancies_ids(cv: Dict[str, Any]):
             return vacancy.get("id")
 
 
-def get_statuses_ids(cv: Dict[str, Any]):
+def get_statuses_ids(cv: Dict[str, Any], AUTH_TOKEN):
     url = "https://dev-100-api.huntflow.dev/account/2/vacancy/statuses"
     headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
     response = requests.get(url, headers=headers)
@@ -79,7 +70,7 @@ def get_statuses_ids(cv: Dict[str, Any]):
             return status.get("id")
 
 
-def upload_file(cv: Dict[str, Any]):
+def upload_file(cv: Dict[str, Any], AUTH_TOKEN):
     url = "https://dev-100-api.huntflow.dev/account/2/upload"
     path = cv.get("file_path")
     full_name = cv.get("full_name")
@@ -90,7 +81,7 @@ def upload_file(cv: Dict[str, Any]):
     return response
 
 
-def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int, file_id: int, cv: Dict[str, Any]):
+def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int, file_id: int, cv: Dict[str, Any], AUTH_TOKEN):
     url = f"https://dev-100-api.huntflow.dev/account/2/applicants/{candidate_id}/vacancy"
     headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
     data = {
@@ -107,14 +98,11 @@ def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int,
     return response.json()
 
 
-data = parsing_base()
-
-for candidate in data:
-    file_info = upload_file(candidate)
-    candidate_id = add_candidate(candidate, file_info)
-    vacancy_id = get_vacancies_ids(candidate)
-    status_id = get_statuses_ids(candidate)
-    add_candidate_at_vacancy(candidate_id, vacancy_id, status_id, file_info, candidate)
-
-
-
+# data = parsing_base()
+#
+# for candidate in data:
+#     file_info = upload_file(candidate)
+#     candidate_id = add_candidate(candidate, file_info)
+#     vacancy_id = get_vacancies_ids(candidate)
+#     status_id = get_statuses_ids(candidate)
+#     add_candidate_at_vacancy(candidate_id, vacancy_id, status_id, file_info, candidate)

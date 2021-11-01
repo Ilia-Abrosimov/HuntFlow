@@ -1,9 +1,8 @@
-from pprint import pprint
-
-from openpyxl import load_workbook
 import os
 
-path = "D:\Dev\HuntFlow\Резюме"
+from openpyxl import load_workbook
+
+# path = "D:\Dev\HuntFlow\Резюме"
 
 
 def find_resume(path, position, name):
@@ -14,8 +13,16 @@ def find_resume(path, position, name):
             return abs_path
 
 
-def parsing_base():
-    wb = load_workbook('D:\Dev\HuntFlow\Резюме\Тестовая база.xlsx')
+def find_base(path):
+    for file in os.listdir(path):
+        if "Тестовая база" in file:
+            abs_path = os.path.join(path, file)
+            return abs_path
+
+
+def parsing_base(folder_path: str):
+    base_path = find_base(folder_path)
+    wb = load_workbook(base_path)
     sheet = wb['Лист1']
     cv_list = []
     for cellObj in sheet['A2':'E5']:
@@ -25,7 +32,7 @@ def parsing_base():
         cv_dct = {}
         cv_dct['position'] = str_from_table[0]
         cv_dct["full_name"] = str_from_table[1].strip()
-        cv_dct["file_path"] = find_resume(path, cv_dct['position'], cv_dct["full_name"])
+        cv_dct["file_path"] = find_resume(folder_path, cv_dct['position'], cv_dct["full_name"])
         split_list = str_from_table[1].strip().split()
         if len(split_list) != 3:
             split_list.insert(2, None)
