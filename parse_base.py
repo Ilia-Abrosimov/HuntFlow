@@ -1,4 +1,5 @@
 import os
+from typing import Any, Dict
 
 from openpyxl import load_workbook
 
@@ -20,12 +21,12 @@ def find_base(path):
             return abs_path
 
 
-def parsing_base(folder_path: str):
+def parsing_base(folder_path: str, verified_data: Dict[str, Any]):
     base_path = find_base(folder_path)
     wb = load_workbook(base_path)
-    sheet = wb['Лист1']
+    sheet = wb[wb.active.title]
     cv_list = []
-    for cellObj in sheet['A2':'E5']:
+    for cellObj in sheet[verified_data.get("min_coordinate"):verified_data.get("max_coordinate")]:
         str_from_table = []
         for cell in cellObj:
             str_from_table.append(cell.value)
