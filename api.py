@@ -92,4 +92,4 @@ def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int,
     if status_id == 10:
         data["rejection_reason"] = 1
     response = requests.post(url, headers=headers, json=data)
-    return response.json()
+    return response.status_code
