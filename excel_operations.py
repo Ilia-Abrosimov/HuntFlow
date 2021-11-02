@@ -6,6 +6,8 @@ from parse_base import find_base
 
 
 def write_status_in_excel(code: int, folder_path: str, counter: int):
+    """Запись статуса выполнения загрузки в базу"""
+
     if code == 200:
         base_path = find_base(folder_path)
         wb = load_workbook(base_path)
@@ -17,6 +19,8 @@ def write_status_in_excel(code: int, folder_path: str, counter: int):
 
 
 def check_status_in_excel(folder_path: str):
+    """Проверка статуса выполнения загрузки и возращение области Excel по которой необходимо загрузить кандидатов"""
+
     base_path = find_base(folder_path)
     wb = load_workbook(base_path)
     sheet = wb[wb.active.title]

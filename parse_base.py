@@ -1,12 +1,12 @@
 import os
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from openpyxl import load_workbook
 
-# path = "D:\Dev\HuntFlow\Резюме"
 
+def find_resume(path: str, position: str, name: str) -> str:
+    """Пусть файла с резюме кандидата"""
 
-def find_resume(path, position, name):
     folder = f"{path}\{position}"
     for resume in os.listdir(folder):
         if name in resume:
@@ -14,14 +14,18 @@ def find_resume(path, position, name):
             return abs_path
 
 
-def find_base(path):
+def find_base(path: str) -> str:
+    """Поиск файла с базой в указанной папке"""
+
     for file in os.listdir(path):
         if "Тестовая база" in file:
             abs_path = os.path.join(path, file)
             return abs_path
 
 
-def parsing_base(folder_path: str, verified_data: Dict[str, Any]):
+def parsing_base(folder_path: str, verified_data: Dict[str, Any]) -> List:
+    """Парсинг Excel и добавление построчно кандидатов в список"""
+
     base_path = find_base(folder_path)
     wb = load_workbook(base_path)
     sheet = wb[wb.active.title]

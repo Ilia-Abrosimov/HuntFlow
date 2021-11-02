@@ -4,7 +4,9 @@ from excel_operations import check_status_in_excel, write_status_in_excel
 from parse_base import parsing_base
 
 
-def flow(path, token):
+def flow(path: str, token: str) -> str:
+    """Основная функция скрипта"""
+
     checked_data = check_status_in_excel(path)
     if checked_data == "База уже загружена в Хантфлоу":
         return "База уже загружена в Хантфлоу"
