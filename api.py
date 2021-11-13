@@ -1,16 +1,19 @@
+import os
 from typing import Any, Dict
 
 import requests
 from dotenv import load_dotenv
 
+from urls import (ADD_CANDIDATE_URL, GET_STATUSES_ID_URL, GET_VACANCIES_ID_URL,
+                  HEADERS, ORGANIZATION_ID, UPLOAD_FILE_URL)
+
 load_dotenv()
+# AUTH_TOKEN = os.getenv("AUTH_TOKEN")
 
 
-def add_candidate(cv: Dict[str, Any], info_from_file: Dict[str, Any], AUTH_TOKEN) -> int:
+def add_candidate(cv: Dict[str, Any], info_from_file: Dict[str, Any]) -> int:
     """Добавление кандидата в базу и получение его id"""
 
-    url = "https://dev-100-api.huntflow.dev/account/2/applicants"
-    headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
     data = {}
     data["last_name"] = cv.get("last_name")
     data["first_name"] = cv.get("first_name")
@@ -42,53 +45,47 @@ def add_candidate(cv: Dict[str, Any], info_from_file: Dict[str, Any], AUTH_TOKEN
             ],
         }
     ]
-    response = requests.post(url, headers=headers, json=data)
+    response = requests.post(ADD_CANDIDATE_URL, headers=HEADERS, json=data)
     candidate_id = response.json()["id"]
     return candidate_id
 
 
-def get_vacancies_ids(cv: Dict[str, Any], AUTH_TOKEN) -> int:
+def get_vacancies_ids(cv: Dict[str, Any]) -> int:
     """Поиск вакансии в базе по позиции кандидата указанной в резюме и получение id вакансии"""
 
-    url = "https://dev-100-api.huntflow.dev/account/2/vacancies"
-    headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
-    response = requests.get(url, headers=headers)
+    response = requests.get(GET_VACANCIES_ID_URL, headers=HEADERS)
     vacancies = response.json()["items"]
     for vacancy in vacancies:
         if cv.get("position") == vacancy.get("position"):
             return vacancy.get("id")
 
 
-def get_statuses_ids(cv: Dict[str, Any], AUTH_TOKEN) -> int:
+def get_statuses_ids(cv: Dict[str, Any]) -> int:
     """Получение id этапа подбора для вакансии"""
 
-    url = "https://dev-100-api.huntflow.dev/account/2/vacancy/statuses"
-    headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
-    response = requests.get(url, headers=headers)
+    response = requests.get(GET_STATUSES_ID_URL, headers=HEADERS)
     statuses = response.json()["items"]
     for status in statuses:
         if cv.get("status") == status.get("name"):
             return status.get("id")
 
 
-def upload_file(cv: Dict[str, Any], AUTH_TOKEN):
+def upload_file(cv: Dict[str, Any]):
     """Загрузка файла резюме кандидата"""
 
-    url = "https://dev-100-api.huntflow.dev/account/2/upload"
     path = cv.get("file_path")
     full_name = cv.get("full_name")
     files = {'file': (full_name, open(path, 'rb'), 'application/pdf')}
-    headers = {'Authorization': f'Bearer {AUTH_TOKEN}',
+    headers = {'Authorization': HEADERS['Authorization'],
                'X-File-Parse': 'True'}
-    response = requests.post(url, headers=headers, files=files).json()
+    response = requests.post(UPLOAD_FILE_URL, headers=headers, files=files).json()
     return response
 
 
-def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int, file_id: int, cv: Dict[str, Any], AUTH_TOKEN) -> int:
+def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int, file_id: int, cv: Dict[str, Any]) -> int:
     """Добавление кандидата на вакансию"""
 
-    url = f"https://dev-100-api.huntflow.dev/account/2/applicants/{candidate_id}/vacancy"
-    headers = {'Authorization': f'Bearer {AUTH_TOKEN}'}
+    url = f"https://dev-100-api.huntflow.dev/account/{ORGANIZATION_ID}/applicants/{candidate_id}/vacancy"
     data = {
         "vacancy": vacancy_id,
         "status": status_id,
@@ -99,5 +96,5 @@ def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int,
     }
     if status_id == 10:
         data["rejection_reason"] = 1
-    response = requests.post(url, headers=headers, json=data)
+    response = requests.post(url, headers=HEADERS, json=data)
     return response.status_code
