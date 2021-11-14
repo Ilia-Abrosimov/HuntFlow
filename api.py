@@ -50,21 +50,33 @@ def add_candidate(cv: Dict[str, Any], info_from_file: Dict[str, Any]) -> int:
     return candidate_id
 
 
-def get_vacancies_ids(cv: Dict[str, Any]) -> int:
+def get_vacancies() -> list:
     """Поиск вакансии в базе по позиции кандидата указанной в резюме и получение id вакансии"""
 
     response = requests.get(GET_VACANCIES_ID_URL, headers=HEADERS)
     vacancies = response.json()["items"]
+    return vacancies
+
+
+def get_vacancies_ids(vacancies: list, cv: Dict[str, Any]) -> int:
+    """Поиск id вакансии в Хантфлоу по наименованию вакансии в базе"""
+
     for vacancy in vacancies:
         if cv.get("position") == vacancy.get("position"):
             return vacancy.get("id")
 
 
-def get_statuses_ids(cv: Dict[str, Any]) -> int:
+def get_statuses() -> list:
     """Получение id этапа подбора для вакансии"""
 
     response = requests.get(GET_STATUSES_ID_URL, headers=HEADERS)
     statuses = response.json()["items"]
+    return statuses
+
+
+def get_statuses_ids(statuses: list, cv: Dict[str, Any]) -> int:
+    """Поиск id статуса в Хантфлоу по наименованию статуса в базе"""
+
     for status in statuses:
         if cv.get("status") == status.get("name"):
             return status.get("id")
