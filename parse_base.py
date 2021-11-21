@@ -5,9 +5,9 @@ from openpyxl import load_workbook
 
 
 def find_resume(path: str, position: str, name: str) -> str:
-    """Пусть файла с резюме кандидата"""
+    """Путь файла с резюме кандидата"""
 
-    folder = f"{path}\{position}"
+    folder = os.path.join(path, position)
     for resume in os.listdir(folder):
         if name in resume:
             abs_path = os.path.join(folder, resume)
