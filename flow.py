@@ -5,9 +5,10 @@ from excel_operations import check_status_in_excel, write_status_in_excel
 from parse_base import parsing_base
 
 
-def flow(path: str) -> str:
+def flow() -> str:
     """Основная функция скрипта"""
 
+    path = input("Введите путь к папке с базой: ")
     checked_data = check_status_in_excel(path)
     if checked_data == "База уже загружена в Хантфлоу":
         return "База уже загружена в Хантфлоу"

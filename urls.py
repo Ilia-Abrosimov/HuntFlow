@@ -3,11 +3,10 @@ import os
 import requests
 from dotenv import load_dotenv
 
-# from main import token
-
 load_dotenv()
 
 AUTH_TOKEN = os.getenv("AUTH_TOKEN")
+# AUTH_TOKEN = input("Введите токен: ")
 HEADERS = {'Authorization': f'Bearer {AUTH_TOKEN}'}
 
 
