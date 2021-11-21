@@ -74,12 +74,14 @@ def get_statuses() -> list:
     return statuses
 
 
-def get_statuses_ids(statuses: list, cv: Dict[str, Any]) -> int:
+def get_statuses_ids_and_name(statuses: list, cv: Dict[str, Any]) -> Dict[str, Any]:
     """Поиск id статуса в Хантфлоу по наименованию статуса в базе"""
-
+    response = {}
     for status in statuses:
         if cv.get("status") == status.get("name"):
-            return status.get("id")
+            response["id"] = status.get("id")
+            response["status"] = status.get("name")
+            return response
 
 
 def upload_file(cv: Dict[str, Any]):
@@ -94,19 +96,20 @@ def upload_file(cv: Dict[str, Any]):
     return response
 
 
-def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id: int, file_id: int, cv: Dict[str, Any]) -> int:
+def add_candidate_at_vacancy(candidate_id: int, vacancy_id: int, status_id_and_name: Dict[str, Any], file_id: int,
+                             cv: Dict[str, Any]) -> int:
     """Добавление кандидата на вакансию"""
 
     url = f"https://dev-100-api.huntflow.dev/account/{ORGANIZATION_ID}/applicants/{candidate_id}/vacancy"
     data = {
         "vacancy": vacancy_id,
-        "status": status_id,
+        "status": status_id_and_name.get("id"),
         "comment": cv.get("comment"),
         "files": {
             "id": file_id["id"]
         }
     }
-    if status_id == 10:
+    if status_id_and_name.get("status") == "Отказ":
         data["rejection_reason"] = 1
     response = requests.post(url, headers=HEADERS, json=data)
     return response.status_code
