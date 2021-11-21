@@ -16,11 +16,9 @@ def find_resume(path: str, position: str, name: str) -> str:
 
 def find_base(path: str) -> str:
     """Поиск файла с базой в указанной папке"""
-
-    for file in os.listdir(path):
-        if "Тестовая база" in file:
-            abs_path = os.path.join(path, file)
-            return abs_path
+    full_path = os.path.join(path, "Тестовая база.xlsx")
+    if os.path.isfile(full_path):
+        return full_path
 
 
 def parsing_base(folder_path: str, verified_data: Dict[str, Any]) -> List:
